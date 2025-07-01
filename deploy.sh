@@ -15,51 +15,23 @@ echo "theme = 'ananke'" >> hugo.toml
 # 创建示例内容
 hugo new content posts/first-post.md
 
-# 创建 GitHub Actions 工作流
-mkdir -p .github/workflows
-cat << 'EOF' > .github/workflows/gh-pages.yml
-name: GitHub Pages
-
-on:
-  push:
-    branches:
-      - main
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: true
-          fetch-depth: 0
-
-      - name: Setup Hugo
-        uses: peaceiris/actions-hugo@v2
-        with:
-          hugo-version: 'latest'
-          extended: true
-
-      - name: Build
-        run: hugo --minify
-
-      - name: Deploy
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./public
+# 创建 Netlify 配置文件
+cat << 'EOF' > netlify.toml
+[build]
+  command = "hugo --gc --minify"
+  publish = "public"
 EOF
 
 # 添加所有文件
 git add .
 
 # 提交更改
-git commit -m "Automated Hugo setup"
+git commit -m "Automated Hugo setup with Netlify"
 
 # 推送到远程仓库
 if [ -n "$1" ]; then
     git remote add origin $1
     git push -u origin main
 else
-    echo "https://github.com/yuanfangbot/bo.git"
+    echo "未提供 GitHub 仓库 URL，请手动添加远程仓库并推送"
 fi
